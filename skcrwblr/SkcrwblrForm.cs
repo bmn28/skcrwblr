@@ -761,6 +761,28 @@ namespace Skcrwblr
             Process.Start("http://last.fm/user/" + scrobbler.Username);
         }
 
+        private void menuItemClear_Click(object sender, EventArgs e)
+        {
+            textBoxLog.Clear();
+        }
+
+        private void menuItemCopy_Click(object sender, EventArgs e)
+        {
+            textBoxLog.Copy();
+        }
+
+        private void menuItemSelectAll_Click(object sender, EventArgs e)
+        {
+            textBoxLog.SelectAll();
+        }
+
+        private void contextMenuLog_Popup(object sender, EventArgs e)
+        {
+            menuItemClear.Enabled = textBoxLog.TextLength != 0;
+            menuItemCopy.Enabled = textBoxLog.SelectionLength != 0;
+            menuItemSelectAll.Enabled = textBoxLog.TextLength != 0;
+        }
+
         private void comboBoxStream_SelectedIndexChanged(object sender, EventArgs e)
         {
             streamer.Stop();

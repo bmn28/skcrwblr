@@ -44,6 +44,11 @@
             this.buttonStop = new System.Windows.Forms.Button();
             this.buttonPlay = new System.Windows.Forms.Button();
             this.textBoxLog = new System.Windows.Forms.TextBox();
+            this.contextMenuLog = new System.Windows.Forms.ContextMenu();
+            this.menuItemClear = new System.Windows.Forms.MenuItem();
+            this.menuItem4 = new System.Windows.Forms.MenuItem();
+            this.menuItemCopy = new System.Windows.Forms.MenuItem();
+            this.menuItemSelectAll = new System.Windows.Forms.MenuItem();
             this.linkLabelArtist = new System.Windows.Forms.LinkLabel();
             this.linkLabelTitle = new System.Windows.Forms.LinkLabel();
             this.linkLabelAlbum = new System.Windows.Forms.LinkLabel();
@@ -195,6 +200,7 @@
             // 
             // textBoxLog
             // 
+            this.textBoxLog.ContextMenu = this.contextMenuLog;
             this.textBoxLog.Location = new System.Drawing.Point(12, 168);
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
@@ -202,6 +208,38 @@
             this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxLog.Size = new System.Drawing.Size(303, 50);
             this.textBoxLog.TabIndex = 16;
+            // 
+            // contextMenuLog
+            // 
+            this.contextMenuLog.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemClear,
+            this.menuItem4,
+            this.menuItemCopy,
+            this.menuItemSelectAll});
+            this.contextMenuLog.Popup += new System.EventHandler(this.contextMenuLog_Popup);
+            // 
+            // menuItemClear
+            // 
+            this.menuItemClear.Index = 0;
+            this.menuItemClear.Text = "Clear";
+            this.menuItemClear.Click += new System.EventHandler(this.menuItemClear_Click);
+            // 
+            // menuItem4
+            // 
+            this.menuItem4.Index = 1;
+            this.menuItem4.Text = "-";
+            // 
+            // menuItemCopy
+            // 
+            this.menuItemCopy.Index = 2;
+            this.menuItemCopy.Text = "Copy";
+            this.menuItemCopy.Click += new System.EventHandler(this.menuItemCopy_Click);
+            // 
+            // menuItemSelectAll
+            // 
+            this.menuItemSelectAll.Index = 3;
+            this.menuItemSelectAll.Text = "Select All";
+            this.menuItemSelectAll.Click += new System.EventHandler(this.menuItemSelectAll_Click);
             // 
             // linkLabelArtist
             // 
@@ -417,6 +455,11 @@
         private System.Windows.Forms.Label labelProgram;
         private System.Windows.Forms.ComboBox comboBoxStream;
         private System.Windows.Forms.Label labelAlbumArt;
+        private System.Windows.Forms.ContextMenu contextMenuLog;
+        private System.Windows.Forms.MenuItem menuItemClear;
+        private System.Windows.Forms.MenuItem menuItem4;
+        private System.Windows.Forms.MenuItem menuItemCopy;
+        private System.Windows.Forms.MenuItem menuItemSelectAll;
     }
 }
 
