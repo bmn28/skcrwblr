@@ -17,7 +17,7 @@ namespace Skcrwblr
     /// </summary>
     public class LastFmScrobbler : IDisposable
     {
-        private static DateTime epoch = new DateTime(1970, 1, 1).ToLocalTime();
+        private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private const string ApiKey = ApiCredentials.ApiKey;
         private const string Secret = ApiCredentials.Secret;
 
