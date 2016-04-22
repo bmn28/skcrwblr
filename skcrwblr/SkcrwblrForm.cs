@@ -163,8 +163,11 @@ namespace Skcrwblr
                                 }
                                 try
                                 {
-                                    await scrobbler.Scrobble(lastNode.Value, checkBoxAutoCorrect.Checked);
-                                    log("Scrobbled " + lastNode.Value.UserArtist + " - " + lastNode.Value.UserTitle + ".");
+                                    if (!String.IsNullOrEmpty(lastNode.Value.UserArtist) && !String.IsNullOrEmpty(lastNode.Value.UserTitle))
+                                    {
+                                        await scrobbler.Scrobble(lastNode.Value, checkBoxAutoCorrect.Checked);
+                                        log("Scrobbled " + lastNode.Value.UserArtist + " - " + lastNode.Value.UserTitle + ".");
+                                    }
                                 }
                                 catch (Exception ex) when (ex is WebException || ex is System.Runtime.Remoting.ServerException)
                                 {
