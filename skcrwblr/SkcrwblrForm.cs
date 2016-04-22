@@ -33,6 +33,7 @@ namespace Skcrwblr
         private bool lovedCurrent;
         private bool textChanged;
         private bool exiting;
+        private int trackIndex;
 
         public KcrwResponse LastTrack
         {
@@ -191,6 +192,7 @@ namespace Skcrwblr
                     buttonScrobble.Enabled = true;
                     LovedCurrent = false;
                     selectedNode = tracklist.Last;
+                    trackIndex = 0;
                     await findCorrection(LastTrack);
                     textChanged = false;
                     populateFields(LastTrack);
@@ -249,7 +251,7 @@ namespace Skcrwblr
                 textBoxArtist.Text = response.UserArtist;
                 colorize(response);
             }
-            updateTime(response.ParsedDateTime, response == LastTrack);
+            updateTime(response.ParsedDateTime);
             if (response.UserScrobbled)
             {
                 buttonScrobble.Text = "Scrobbled";
@@ -262,14 +264,18 @@ namespace Skcrwblr
             }
         }
 
-        private void updateTime(DateTime dateTime, bool includeDuration = true)
+        private void updateTime(DateTime dateTime)
         {
             TimeSpan timeSpan = DateTime.Now.ToUniversalTime() - dateTime;
             string timeCode = timeSpan.TotalHours >= 1F ? timeSpan.ToString(@"h\:mm\:ss") : timeSpan.ToString(@"m\:ss");
             labelTime.Text = dateTime.ToLocalTime().ToShortTimeString();
-            if (includeDuration)
+            if (SelectedTrack == LastTrack)
             {
                 labelTime.Text += " - " + timeCode;
+            }
+            else
+            {
+                labelTime.Text = "#" + trackIndex + " - " + labelTime.Text;
             }
         }
 
@@ -760,6 +766,7 @@ namespace Skcrwblr
             if (selectedNode.Previous != null)
             {
                 selectedNode = selectedNode.Previous;
+                trackIndex += 1;
                 if (!SelectedTrack.LastFmFound)
                 {
                     await findCorrection(SelectedTrack);
@@ -773,6 +780,7 @@ namespace Skcrwblr
             if (selectedNode.Next != null)
             {
                 selectedNode = selectedNode.Next;
+                trackIndex -= 1;
                 populateFields(SelectedTrack);
             }
         }
@@ -780,6 +788,7 @@ namespace Skcrwblr
         private void buttonLast_Click(object sender, EventArgs e)
         {
             selectedNode = ((Stream)comboBoxStream.SelectedItem).Tracklist.Last;
+            trackIndex = 0;
             populateFields(SelectedTrack);
         }
 
