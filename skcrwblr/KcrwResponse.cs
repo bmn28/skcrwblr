@@ -78,5 +78,16 @@ namespace Skcrwblr
         public string Channel { get; set; }
         [DataMember(Name = "location")]
         public string Location { get; set; }
+
+        public string UserArtist { get; set; }
+        public string UserTitle { get; set; }
+        public string UserAlbum { get; set; }
+        public string LastFmArtist { get; set; }
+        public string LastFmTitle { get; set; }
+        public string LastFmAlbum { get; set; }
+        public string LastFmImageUrl { get; set; }
+        public bool LastFmFound { get; set; } = false;
+        public bool UserScrobbled { get; set; } = false;
+        public bool UserLoved { get; set; } = false;
     }
 }
