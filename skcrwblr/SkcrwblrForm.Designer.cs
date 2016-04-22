@@ -40,9 +40,6 @@
             this.checkBoxAutoCorrect = new System.Windows.Forms.CheckBox();
             this.buttonOriginalSpelling = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.buttonPause = new System.Windows.Forms.Button();
-            this.buttonStop = new System.Windows.Forms.Button();
-            this.buttonPlay = new System.Windows.Forms.Button();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.contextMenuLog = new System.Windows.Forms.ContextMenu();
             this.menuItemClear = new System.Windows.Forms.MenuItem();
@@ -52,7 +49,6 @@
             this.linkLabelArtist = new System.Windows.Forms.LinkLabel();
             this.linkLabelTitle = new System.Windows.Forms.LinkLabel();
             this.linkLabelAlbum = new System.Windows.Forms.LinkLabel();
-            this.albumArt = new System.Windows.Forms.PictureBox();
             this.buttonLove = new System.Windows.Forms.Button();
             this.contextMenuAbout = new System.Windows.Forms.ContextMenu();
             this.menuItemAbout = new System.Windows.Forms.MenuItem();
@@ -67,8 +63,13 @@
             this.labelTime = new System.Windows.Forms.Label();
             this.buttonPrevious = new System.Windows.Forms.Button();
             this.buttonNext = new System.Windows.Forms.Button();
-            this.volumeControl = new Skcrwblr.VolumeControl();
             this.timerUpdateTime = new System.Windows.Forms.Timer(this.components);
+            this.buttonLast = new System.Windows.Forms.Button();
+            this.albumArt = new System.Windows.Forms.PictureBox();
+            this.buttonPlay = new System.Windows.Forms.Button();
+            this.buttonPause = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.volumeControl = new Skcrwblr.VolumeControl();
             ((System.ComponentModel.ISupportInitialize)(this.albumArt)).BeginInit();
             this.SuspendLayout();
             // 
@@ -113,7 +114,7 @@
             this.buttonCorrectSpelling.Location = new System.Drawing.Point(13, 139);
             this.buttonCorrectSpelling.Name = "buttonCorrectSpelling";
             this.buttonCorrectSpelling.Size = new System.Drawing.Size(100, 23);
-            this.buttonCorrectSpelling.TabIndex = 10;
+            this.buttonCorrectSpelling.TabIndex = 14;
             this.buttonCorrectSpelling.Text = "Correct spelling";
             this.buttonCorrectSpelling.UseVisualStyleBackColor = true;
             this.buttonCorrectSpelling.Click += new System.EventHandler(this.buttonCorrectSpelling_Click);
@@ -124,7 +125,7 @@
             this.buttonScrobble.Location = new System.Drawing.Point(13, 168);
             this.buttonScrobble.Name = "buttonScrobble";
             this.buttonScrobble.Size = new System.Drawing.Size(100, 23);
-            this.buttonScrobble.TabIndex = 13;
+            this.buttonScrobble.TabIndex = 17;
             this.buttonScrobble.Text = "Scrobble now";
             this.toolTip.SetToolTip(this.buttonScrobble, "Immediately scrobble the currently playing song.");
             this.buttonScrobble.UseVisualStyleBackColor = true;
@@ -136,7 +137,7 @@
             this.checkBoxAutoScrobble.Location = new System.Drawing.Point(225, 172);
             this.checkBoxAutoScrobble.Name = "checkBoxAutoScrobble";
             this.checkBoxAutoScrobble.Size = new System.Drawing.Size(88, 17);
-            this.checkBoxAutoScrobble.TabIndex = 15;
+            this.checkBoxAutoScrobble.TabIndex = 19;
             this.checkBoxAutoScrobble.Text = "Autoscrobble";
             this.toolTip.SetToolTip(this.checkBoxAutoScrobble, "Automatically scrobbles the previously played song when a new song begins.");
             this.checkBoxAutoScrobble.UseVisualStyleBackColor = true;
@@ -147,7 +148,7 @@
             this.checkBoxAutoCorrect.Location = new System.Drawing.Point(225, 143);
             this.checkBoxAutoCorrect.Name = "checkBoxAutoCorrect";
             this.checkBoxAutoCorrect.Size = new System.Drawing.Size(81, 17);
-            this.checkBoxAutoCorrect.TabIndex = 12;
+            this.checkBoxAutoCorrect.TabIndex = 16;
             this.checkBoxAutoCorrect.Text = "Autocorrect";
             this.toolTip.SetToolTip(this.checkBoxAutoCorrect, "Automatically corrects the supplied metadata to the canonical data on Last.fm. No" +
         "te that this is not necessary if spelling correction is enabled in your Last.fm " +
@@ -160,48 +161,10 @@
             this.buttonOriginalSpelling.Location = new System.Drawing.Point(119, 139);
             this.buttonOriginalSpelling.Name = "buttonOriginalSpelling";
             this.buttonOriginalSpelling.Size = new System.Drawing.Size(100, 23);
-            this.buttonOriginalSpelling.TabIndex = 11;
+            this.buttonOriginalSpelling.TabIndex = 15;
             this.buttonOriginalSpelling.Text = "Original spelling";
             this.buttonOriginalSpelling.UseVisualStyleBackColor = true;
             this.buttonOriginalSpelling.Click += new System.EventHandler(this.buttonOriginalSpelling_Click);
-            // 
-            // buttonPause
-            // 
-            this.buttonPause.Enabled = false;
-            this.buttonPause.Image = global::Skcrwblr.Properties.Resources.Pause;
-            this.buttonPause.Location = new System.Drawing.Point(167, 253);
-            this.buttonPause.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.buttonPause.Name = "buttonPause";
-            this.buttonPause.Size = new System.Drawing.Size(24, 24);
-            this.buttonPause.TabIndex = 19;
-            this.toolTip.SetToolTip(this.buttonPause, "Pause");
-            this.buttonPause.UseVisualStyleBackColor = true;
-            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
-            // 
-            // buttonStop
-            // 
-            this.buttonStop.Enabled = false;
-            this.buttonStop.Image = global::Skcrwblr.Properties.Resources.Stop;
-            this.buttonStop.Location = new System.Drawing.Point(194, 253);
-            this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.buttonStop.Name = "buttonStop";
-            this.buttonStop.Size = new System.Drawing.Size(24, 24);
-            this.buttonStop.TabIndex = 20;
-            this.toolTip.SetToolTip(this.buttonStop, "Stop");
-            this.buttonStop.UseVisualStyleBackColor = true;
-            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
-            // 
-            // buttonPlay
-            // 
-            this.buttonPlay.Image = global::Skcrwblr.Properties.Resources.Play;
-            this.buttonPlay.Location = new System.Drawing.Point(140, 253);
-            this.buttonPlay.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.buttonPlay.Name = "buttonPlay";
-            this.buttonPlay.Size = new System.Drawing.Size(24, 24);
-            this.buttonPlay.TabIndex = 18;
-            this.toolTip.SetToolTip(this.buttonPlay, "Play");
-            this.buttonPlay.UseVisualStyleBackColor = true;
-            this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
             // 
             // textBoxLog
             // 
@@ -212,7 +175,7 @@
             this.textBoxLog.ReadOnly = true;
             this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxLog.Size = new System.Drawing.Size(303, 50);
-            this.textBoxLog.TabIndex = 16;
+            this.textBoxLog.TabIndex = 20;
             // 
             // contextMenuLog
             // 
@@ -279,22 +242,12 @@
             this.linkLabelAlbum.Text = "Album:";
             this.linkLabelAlbum.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelAlbum_LinkClicked);
             // 
-            // albumArt
-            // 
-            this.albumArt.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.albumArt.Location = new System.Drawing.Point(243, 32);
-            this.albumArt.Name = "albumArt";
-            this.albumArt.Size = new System.Drawing.Size(72, 72);
-            this.albumArt.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.albumArt.TabIndex = 18;
-            this.albumArt.TabStop = false;
-            // 
             // buttonLove
             // 
             this.buttonLove.Location = new System.Drawing.Point(119, 168);
             this.buttonLove.Name = "buttonLove";
             this.buttonLove.Size = new System.Drawing.Size(100, 23);
-            this.buttonLove.TabIndex = 14;
+            this.buttonLove.TabIndex = 18;
             this.buttonLove.Text = "Love track";
             this.buttonLove.UseVisualStyleBackColor = true;
             this.buttonLove.Click += new System.EventHandler(this.buttonLove_Click);
@@ -366,7 +319,7 @@
             this.comboBoxStream.Location = new System.Drawing.Point(13, 254);
             this.comboBoxStream.Name = "comboBoxStream";
             this.comboBoxStream.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxStream.TabIndex = 17;
+            this.comboBoxStream.TabIndex = 21;
             this.comboBoxStream.SelectedIndexChanged += new System.EventHandler(this.comboBoxStream_SelectedIndexChanged);
             // 
             // labelAlbumArt
@@ -383,8 +336,8 @@
             this.labelTime.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.labelTime.Location = new System.Drawing.Point(42, 111);
             this.labelTime.Name = "labelTime";
-            this.labelTime.Size = new System.Drawing.Size(244, 22);
-            this.labelTime.TabIndex = 22;
+            this.labelTime.Size = new System.Drawing.Size(217, 22);
+            this.labelTime.TabIndex = 11;
             this.labelTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // buttonPrevious
@@ -394,7 +347,7 @@
             this.buttonPrevious.Name = "buttonPrevious";
             this.buttonPrevious.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
             this.buttonPrevious.Size = new System.Drawing.Size(23, 23);
-            this.buttonPrevious.TabIndex = 0;
+            this.buttonPrevious.TabIndex = 10;
             this.buttonPrevious.Text = "3";
             this.buttonPrevious.UseVisualStyleBackColor = true;
             this.buttonPrevious.Click += new System.EventHandler(this.buttonPrevious_Click);
@@ -402,23 +355,14 @@
             // buttonNext
             // 
             this.buttonNext.Font = new System.Drawing.Font("Marlett", 11F);
-            this.buttonNext.Location = new System.Drawing.Point(292, 110);
+            this.buttonNext.Location = new System.Drawing.Point(265, 110);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
             this.buttonNext.Size = new System.Drawing.Size(23, 23);
-            this.buttonNext.TabIndex = 0;
+            this.buttonNext.TabIndex = 12;
             this.buttonNext.Text = "4";
             this.buttonNext.UseVisualStyleBackColor = true;
             this.buttonNext.Click += new System.EventHandler(this.buttonNext_Click);
-            // 
-            // volumeControl
-            // 
-            this.volumeControl.Location = new System.Drawing.Point(221, 254);
-            this.volumeControl.Name = "volumeControl";
-            this.volumeControl.Size = new System.Drawing.Size(95, 22);
-            this.volumeControl.TabIndex = 21;
-            this.volumeControl.VolumeAsPercent = 100;
-            this.volumeControl.VolumeChanged += new System.EventHandler(this.volumeControl_VolumeChanged);
             // 
             // timerUpdateTime
             // 
@@ -426,12 +370,81 @@
             this.timerUpdateTime.Interval = 1000;
             this.timerUpdateTime.Tick += new System.EventHandler(this.timerUpdateTime_Tick);
             // 
+            // buttonLast
+            // 
+            this.buttonLast.Font = new System.Drawing.Font("Marlett", 11F);
+            this.buttonLast.Image = global::Skcrwblr.Properties.Resources.Last;
+            this.buttonLast.Location = new System.Drawing.Point(293, 110);
+            this.buttonLast.Name = "buttonLast";
+            this.buttonLast.Size = new System.Drawing.Size(23, 23);
+            this.buttonLast.TabIndex = 13;
+            this.buttonLast.UseVisualStyleBackColor = true;
+            this.buttonLast.Click += new System.EventHandler(this.buttonLast_Click);
+            // 
+            // albumArt
+            // 
+            this.albumArt.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.albumArt.Location = new System.Drawing.Point(243, 32);
+            this.albumArt.Name = "albumArt";
+            this.albumArt.Size = new System.Drawing.Size(72, 72);
+            this.albumArt.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.albumArt.TabIndex = 18;
+            this.albumArt.TabStop = false;
+            // 
+            // buttonPlay
+            // 
+            this.buttonPlay.Image = global::Skcrwblr.Properties.Resources.Play;
+            this.buttonPlay.Location = new System.Drawing.Point(140, 253);
+            this.buttonPlay.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.buttonPlay.Name = "buttonPlay";
+            this.buttonPlay.Size = new System.Drawing.Size(24, 24);
+            this.buttonPlay.TabIndex = 22;
+            this.toolTip.SetToolTip(this.buttonPlay, "Play");
+            this.buttonPlay.UseVisualStyleBackColor = true;
+            this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
+            // 
+            // buttonPause
+            // 
+            this.buttonPause.Enabled = false;
+            this.buttonPause.Image = global::Skcrwblr.Properties.Resources.Pause;
+            this.buttonPause.Location = new System.Drawing.Point(167, 253);
+            this.buttonPause.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.buttonPause.Name = "buttonPause";
+            this.buttonPause.Size = new System.Drawing.Size(24, 24);
+            this.buttonPause.TabIndex = 23;
+            this.toolTip.SetToolTip(this.buttonPause, "Pause");
+            this.buttonPause.UseVisualStyleBackColor = true;
+            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.Enabled = false;
+            this.buttonStop.Image = global::Skcrwblr.Properties.Resources.Stop;
+            this.buttonStop.Location = new System.Drawing.Point(194, 253);
+            this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(24, 24);
+            this.buttonStop.TabIndex = 24;
+            this.toolTip.SetToolTip(this.buttonStop, "Stop");
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
+            // 
+            // volumeControl
+            // 
+            this.volumeControl.Location = new System.Drawing.Point(221, 254);
+            this.volumeControl.Name = "volumeControl";
+            this.volumeControl.Size = new System.Drawing.Size(95, 22);
+            this.volumeControl.TabIndex = 25;
+            this.volumeControl.VolumeAsPercent = 100;
+            this.volumeControl.VolumeChanged += new System.EventHandler(this.volumeControl_VolumeChanged);
+            // 
             // SkcrwblrForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(327, 289);
             this.ContextMenu = this.contextMenuAbout;
+            this.Controls.Add(this.buttonLast);
             this.Controls.Add(this.buttonNext);
             this.Controls.Add(this.buttonPrevious);
             this.Controls.Add(this.labelTime);
@@ -511,6 +524,7 @@
         private System.Windows.Forms.Button buttonPrevious;
         private System.Windows.Forms.Button buttonNext;
         private System.Windows.Forms.Timer timerUpdateTime;
+        private System.Windows.Forms.Button buttonLast;
     }
 }
 

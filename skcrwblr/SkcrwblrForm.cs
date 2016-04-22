@@ -34,11 +34,21 @@ namespace Skcrwblr
         private bool textChanged;
         private bool exiting;
 
-        public KcrwResponse CurrentTrack
+        public KcrwResponse LastTrack
         {
             get
             {
                 return ((Stream)comboBoxStream.SelectedItem).Tracklist.Last.Value;
+            }
+        }
+
+        private LinkedListNode<KcrwResponse> selectedNode = null;
+
+        public KcrwResponse SelectedTrack
+        {
+            get
+            {
+                return selectedNode.Value;
             }
         }
 
@@ -180,6 +190,7 @@ namespace Skcrwblr
                     buttonScrobble.Text = "Scrobble now";
                     buttonScrobble.Enabled = true;
                     LovedCurrent = false;
+                    selectedNode = tracklist.Last;
                     await populateFields(tracklist.Last.Value);
                     updateNowPlaying();
                     labelProgram.Text = "Program: " + tracklist.Last.Value.ProgramTitle;
@@ -198,19 +209,32 @@ namespace Skcrwblr
         /// </summary>
         private async Task populateFields(KcrwResponse response)
         {
+            await findCorrection(response, true);
             textBoxAlbum.Text = response.Album;
             textBoxTitle.Text = response.Title;
             textBoxArtist.Text = response.Artist;
-            updateTime(response.ParsedDateTime);
-
-            await findCorrection(response, true);
+            updateTime(response.ParsedDateTime, response == LastTrack);
+            if (response.UserScrobbled)
+            {
+                buttonScrobble.Text = "Scrobbled";
+                buttonScrobble.Enabled = false;
+            }
+            else
+            {
+                buttonScrobble.Text = "Scrobble now";
+                buttonScrobble.Enabled = true;
+            }
         }
 
-        private void updateTime(DateTime dateTime)
+        private void updateTime(DateTime dateTime, bool includeDuration = true)
         {
             TimeSpan timeSpan = DateTime.Now.ToUniversalTime() - dateTime;
             string timeCode = timeSpan.TotalHours >= 1F ? timeSpan.ToString(@"h\:mm\:ss") : timeSpan.ToString(@"m\:ss");
-            labelTime.Text = dateTime.ToLocalTime().ToShortTimeString() + " - " + timeCode;
+            labelTime.Text = dateTime.ToLocalTime().ToShortTimeString();
+            if (includeDuration)
+            {
+                labelTime.Text += " - " + timeCode;
+            }
         }
 
         /// <summary>
@@ -223,16 +247,13 @@ namespace Skcrwblr
         {
             if (force || textChanged)
             {
-                if (!string.IsNullOrWhiteSpace(textBoxArtist.Text) && !string.IsNullOrWhiteSpace(textBoxTitle.Text))
+                if (!string.IsNullOrWhiteSpace(response.UserArtist) && !string.IsNullOrWhiteSpace(response.UserTitle))
                 {
                     try
                     {
                         buttonCorrectSpelling.Text = "Searching...";
                         buttonCorrectSpelling.Enabled = false;
 
-                        response.UserArtist = textBoxArtist.Text;
-                        response.UserTitle = textBoxTitle.Text;
-                        response.UserAlbum = textBoxAlbum.Text;
                         await scrobbler.Search(response, true);
 
                         buttonCorrectSpelling.Text = "Correct spelling";
@@ -258,11 +279,11 @@ namespace Skcrwblr
                         LovedCurrent = response.UserLoved;
                         if (checkBoxAutoCorrect.Checked)
                         {
-                            useCorrectSpelling(CurrentTrack);
+                            useCorrectSpelling(response);
                         }
                         else
                         {
-                            colorize(CurrentTrack);
+                            colorize(response);
                         }
                     }
                     catch (Exception ex)
@@ -271,22 +292,22 @@ namespace Skcrwblr
                         {
                             log("Error searching for track: " + ex.Message);
                         }
-                        clearLfmTrack();
+                        resetTrackDisplay();
                     }
                     updateNowPlaying();
                 }
                 else
                 {
-                    clearLfmTrack();
+                    resetTrackDisplay();
                 }
             }
             textChanged = false; 
         }
 
         /// <summary>
-        /// Clears the value of lfmTrack and resets the UI to indicate that no track was found.
+        /// Resets the UI to indicate that no track was found.
         /// </summary>
-        private void clearLfmTrack()
+        private void resetTrackDisplay()
         {
             albumArt.Image = null;
             labelAlbumArt.Text = "Track not found";
@@ -295,7 +316,6 @@ namespace Skcrwblr
             textBoxTitle.BackColor = SystemColors.Window;
             textBoxAlbum.BackColor = SystemColors.Window;
 
-            //lfmTrack = null;
             buttonCorrectSpelling.Text = "Search";
             buttonCorrectSpelling.Enabled = true;
         }
@@ -311,11 +331,11 @@ namespace Skcrwblr
                 textBoxArtist.Text = response.LastFmArtist;
                 textBoxTitle.Text = response.LastFmTitle;
                 textBoxAlbum.Text = response.LastFmAlbum;
-                textBoxArtist.BackColor = textBoxArtist.Text.Trim().ToLower().Equals(response.UserArtist.Trim().ToLower()) ?
+                textBoxArtist.BackColor = response.LastFmArtist.Trim().ToLower().Equals(response.UserArtist.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxTitle.BackColor = textBoxTitle.Text.Trim().ToLower().Equals(response.UserTitle.Trim().ToLower()) ?
+                textBoxTitle.BackColor = response.LastFmTitle.Trim().ToLower().Equals(response.UserTitle.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxAlbum.BackColor = textBoxAlbum.Text.Trim().ToLower().Equals(response.UserAlbum.Trim().ToLower()) ?
+                textBoxAlbum.BackColor = response.LastFmAlbum.Trim().ToLower().Equals(response.UserAlbum.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
             }
             else
@@ -334,11 +354,11 @@ namespace Skcrwblr
         {
             if (response.LastFmFound)
             {
-                textBoxArtist.BackColor = textBoxArtist.Text.Trim().ToLower().Equals(response.LastFmArtist.Trim().ToLower()) ?
+                textBoxArtist.BackColor = response.UserArtist.Trim().ToLower().Equals(response.LastFmArtist.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxTitle.BackColor = textBoxTitle.Text.Trim().ToLower().Equals(response.LastFmTitle.Trim().ToLower()) ?
+                textBoxTitle.BackColor = response.UserTitle.Trim().ToLower().Equals(response.LastFmTitle.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxAlbum.BackColor = string.IsNullOrWhiteSpace(response.LastFmAlbum) || textBoxAlbum.Text.Trim().ToLower().Equals(response.LastFmAlbum.Trim().ToLower()) ?
+                textBoxAlbum.BackColor = string.IsNullOrWhiteSpace(response.LastFmAlbum) || response.UserAlbum.Trim().ToLower().Equals(response.LastFmAlbum.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
             }
             else
@@ -354,11 +374,11 @@ namespace Skcrwblr
         /// </summary>
         private async void updateNowPlaying()
         {
-            if (loggedIn && !String.IsNullOrWhiteSpace(textBoxArtist.Text) && !String.IsNullOrWhiteSpace(textBoxTitle.Text))
+            if (loggedIn && !String.IsNullOrWhiteSpace(LastTrack.UserArtist) && !String.IsNullOrWhiteSpace(LastTrack.UserTitle))
             {
                 try
                 {
-                    await scrobbler.UpdateNowPlaying(textBoxArtist.Text, textBoxTitle.Text, textBoxAlbum.Text);
+                    await scrobbler.UpdateNowPlaying(LastTrack.UserArtist, LastTrack.UserTitle, LastTrack.UserAlbum);
                 }
                 catch (Exception ex)
                 {
@@ -372,9 +392,9 @@ namespace Skcrwblr
         /// </summary>
         private async Task scrobbleTrack(KcrwResponse response)
         {
-            if (String.IsNullOrEmpty(textBoxArtist.Text) || String.IsNullOrEmpty(textBoxTitle.Text))
+            if (String.IsNullOrEmpty(response.UserArtist) || String.IsNullOrEmpty(response.UserTitle))
             {
-                if (!textBoxArtist.Text.Equals("[BREAK]"))
+                if (!response.UserArtist.Equals("[BREAK]"))
                 {
                     log("Artist or song title is blank.");
                 }
@@ -384,7 +404,8 @@ namespace Skcrwblr
                 try
                 {
                     await scrobbler.Scrobble(response, checkBoxAutoCorrect.Checked);
-                    log("Scrobbled " + textBoxArtist.Text + " - " + textBoxTitle.Text + ".");
+                    response.UserScrobbled = true;
+                    log("Scrobbled " + response.UserArtist + " - " + response.UserTitle + ".");
                     buttonScrobble.Text = "Scrobbled";
                     buttonScrobble.Enabled = false;
                 }                    
@@ -398,9 +419,9 @@ namespace Skcrwblr
         /// <summary>
         /// Attempts to love the current track. Assumes the user is logged in.
         /// </summary>
-        private async Task loveTrack()
+        private async Task loveTrack(KcrwResponse response)
         {
-            if (String.IsNullOrEmpty(textBoxArtist.Text) || String.IsNullOrEmpty(textBoxTitle.Text))
+            if (String.IsNullOrEmpty(response.UserArtist) || String.IsNullOrEmpty(response.UserTitle))
             {
                 log("Artist or song title is blank.");
             }
@@ -408,8 +429,8 @@ namespace Skcrwblr
             {
                 try
                 {
-                    await scrobbler.Love(textBoxArtist.Text, textBoxTitle.Text);
-                    log("Successfully loved " + textBoxArtist.Text + " - " + textBoxTitle.Text + ".");
+                    await scrobbler.Love(response.UserArtist, response.UserTitle);
+                    log("Successfully loved " + response.UserArtist + " - " + response.UserTitle + ".");
                     LovedCurrent = true;
                 }
                 catch (Exception ex)
@@ -422,9 +443,9 @@ namespace Skcrwblr
         /// <summary>
         /// Attempts to unlove the current track. Assumes the user is logged in.
         /// </summary>
-        private async Task unloveTrack()
+        private async Task unloveTrack(KcrwResponse response)
         {
-            if (String.IsNullOrEmpty(textBoxArtist.Text) || String.IsNullOrEmpty(textBoxTitle.Text))
+            if (String.IsNullOrEmpty(response.UserArtist) || String.IsNullOrEmpty(response.UserTitle))
             {
                 log("Artist or song title is blank.");
             }
@@ -432,8 +453,8 @@ namespace Skcrwblr
             {
                 try
                 {
-                    await scrobbler.Unlove(textBoxArtist.Text, textBoxTitle.Text);
-                    log("Successfully unloved " + textBoxArtist.Text + " - " + textBoxTitle.Text + ".");
+                    await scrobbler.Unlove(response.UserArtist, response.UserTitle);
+                    log("Successfully unloved " + response.UserArtist + " - " + response.UserTitle + ".");
                     LovedCurrent = false;
                 }
                 catch (Exception ex)
@@ -601,7 +622,10 @@ namespace Skcrwblr
 
         private void timerUpdateTime_Tick(object sender, EventArgs e)
         {
-            updateTime(CurrentTrack.ParsedDateTime);
+            if (SelectedTrack == LastTrack)
+            {
+                updateTime(SelectedTrack.ParsedDateTime);
+            }
         }
 
         private async void linkLabelLogin_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -674,13 +698,13 @@ namespace Skcrwblr
 
         private async void textBoxArtist_Leave(object sender, EventArgs e)
         {
-            await findCorrection(CurrentTrack);
+            await findCorrection(SelectedTrack);
         }
 
         private void textBoxArtist_TextChanged(object sender, EventArgs e)
         {
             textChanged = true;
-            CurrentTrack.UserTitle = textBoxArtist.Text;
+            SelectedTrack.UserArtist = textBoxArtist.Text;
         }
 
         private void textBoxTitle_Enter(object sender, EventArgs e)
@@ -690,13 +714,13 @@ namespace Skcrwblr
 
         private async void textBoxTitle_Leave(object sender, EventArgs e)
         {
-            await findCorrection(CurrentTrack);
+            await findCorrection(SelectedTrack);
         }
 
         private void textBoxTitle_TextChanged(object sender, EventArgs e)
         {
             textChanged = true;
-            CurrentTrack.UserArtist = textBoxArtist.Text;
+            SelectedTrack.UserTitle = textBoxTitle.Text;
         }
 
         private void textBoxAlbum_Enter(object sender, EventArgs e)
@@ -711,44 +735,58 @@ namespace Skcrwblr
 
         private void textBoxAlbum_TextChanged(object sender, EventArgs e)
         {
-            CurrentTrack.UserAlbum = textBoxAlbum.Text;
+            SelectedTrack.UserAlbum = textBoxAlbum.Text;
         }
 
-        private void buttonPrevious_Click(object sender, EventArgs e)
+        private async void buttonPrevious_Click(object sender, EventArgs e)
         {
-
+            if (selectedNode.Previous != null)
+            {
+                selectedNode = selectedNode.Previous;
+                await populateFields(SelectedTrack);
+            }
         }
 
-        private void buttonNext_Click(object sender, EventArgs e)
+        private async void buttonNext_Click(object sender, EventArgs e)
         {
+            if (selectedNode.Next != null)
+            {
+                selectedNode = selectedNode.Next;
+                await populateFields(SelectedTrack);
+            }
+        }
 
+        private async void buttonLast_Click(object sender, EventArgs e)
+        {
+            selectedNode = ((Stream)comboBoxStream.SelectedItem).Tracklist.Last;
+            await populateFields(SelectedTrack);
         }
 
         private async void buttonCorrectSpelling_Click(object sender, EventArgs e)
         {
-            if (!CurrentTrack.LastFmFound)
+            if (!SelectedTrack.LastFmFound)
             {
-                await findCorrection(CurrentTrack, true);
+                await findCorrection(SelectedTrack, true);
             }
             else
             {
-                useCorrectSpelling(CurrentTrack);
+                useCorrectSpelling(SelectedTrack);
             }
         }
 
         private void buttonOriginalSpelling_Click(object sender, EventArgs e)
         {
-            textBoxAlbum.Text = CurrentTrack.Album;
-            textBoxTitle.Text = CurrentTrack.Title;
-            textBoxArtist.Text = CurrentTrack.Artist;
-            colorize(CurrentTrack);
+            textBoxAlbum.Text = SelectedTrack.Album;
+            textBoxTitle.Text = SelectedTrack.Title;
+            textBoxArtist.Text = SelectedTrack.Artist;
+            colorize(SelectedTrack);
         }
 
         private void checkBoxAutoCorrect_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBoxAutoCorrect.Checked)
             {
-                useCorrectSpelling(CurrentTrack);
+                useCorrectSpelling(SelectedTrack);
             }
         }
 
@@ -756,7 +794,7 @@ namespace Skcrwblr
         {
             if (loggedIn)
             {
-                await scrobbleTrack(CurrentTrack);
+                await scrobbleTrack(SelectedTrack);
             }
         }
 
@@ -766,11 +804,11 @@ namespace Skcrwblr
             {
                 if (!LovedCurrent)
                 {
-                    await loveTrack();
+                    await loveTrack(SelectedTrack);
                 }
                 else
                 {
-                    await unloveTrack();
+                    await unloveTrack(SelectedTrack);
                 }
             }
         }
