@@ -371,8 +371,7 @@ namespace Skcrwblr
             {
                 try
                 {
-                    await scrobbler.Scrobble(textBoxArtist.Text, textBoxTitle.Text, textBoxAlbum.Text, 
-                        DateTime.Parse(response.Datetime));
+                    await scrobbler.Scrobble(CurrentTrack, checkBoxAutoCorrect.Checked);
                     log("Scrobbled " + textBoxArtist.Text + " - " + textBoxTitle.Text + ".");
                     buttonScrobble.Text = "Scrobbled";
                     buttonScrobble.Enabled = false;
@@ -664,6 +663,7 @@ namespace Skcrwblr
         private void textBoxArtist_TextChanged(object sender, EventArgs e)
         {
             textChanged = true;
+            CurrentTrack.UserTitle = textBoxArtist.Text;
         }
 
         private void textBoxTitle_Enter(object sender, EventArgs e)
@@ -679,6 +679,7 @@ namespace Skcrwblr
         private void textBoxTitle_TextChanged(object sender, EventArgs e)
         {
             textChanged = true;
+            CurrentTrack.UserArtist = textBoxArtist.Text;
         }
 
         private void textBoxAlbum_Enter(object sender, EventArgs e)
@@ -689,6 +690,11 @@ namespace Skcrwblr
         private void textBoxAlbum_Leave(object sender, EventArgs e)
         {
             // don't call findCorrection because changing the album will not affect the results
+        }
+
+        private void textBoxAlbum_TextChanged(object sender, EventArgs e)
+        {
+            CurrentTrack.UserAlbum = textBoxAlbum.Text;
         }
 
         private async void buttonCorrectSpelling_Click(object sender, EventArgs e)

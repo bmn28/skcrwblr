@@ -100,6 +100,7 @@
             this.textBoxAlbum.Name = "textBoxAlbum";
             this.textBoxAlbum.Size = new System.Drawing.Size(180, 20);
             this.textBoxAlbum.TabIndex = 7;
+            this.textBoxAlbum.TextChanged += new System.EventHandler(this.textBoxAlbum_TextChanged);
             this.textBoxAlbum.Enter += new System.EventHandler(this.textBoxAlbum_Enter);
             this.textBoxAlbum.Leave += new System.EventHandler(this.textBoxAlbum_Leave);
             // 
