@@ -31,7 +31,7 @@ namespace Skcrwblr
             bool listNotEmpty = list.Count > 0;
             foreach (KcrwResponse value in array)
             {
-                if (listNotEmpty && value.PlayId == list.First.Value.PlayId)
+                if (listNotEmpty && value.PlayId == list.Last.Value.PlayId)
                 {
                     break;
                 }
