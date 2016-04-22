@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Skcrwblr
 {
@@ -89,5 +90,18 @@ namespace Skcrwblr
         public bool LastFmFound { get; set; } = false;
         public bool UserScrobbled { get; set; } = false;
         public bool UserLoved { get; set; } = false;
+
+        private DateTime? parsedDateTime = null;
+        public DateTime ParsedDateTime
+        {
+            get
+            {
+                if (parsedDateTime == null)
+                {
+                    parsedDateTime = DateTime.Parse(Datetime);
+                }
+                return (DateTime)parsedDateTime;
+            }
+        }
     }
 }

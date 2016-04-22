@@ -64,7 +64,11 @@
             this.labelProgram = new System.Windows.Forms.Label();
             this.comboBoxStream = new System.Windows.Forms.ComboBox();
             this.labelAlbumArt = new System.Windows.Forms.Label();
+            this.labelTime = new System.Windows.Forms.Label();
+            this.buttonPrevious = new System.Windows.Forms.Button();
+            this.buttonNext = new System.Windows.Forms.Button();
             this.volumeControl = new Skcrwblr.VolumeControl();
+            this.timerUpdateTime = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.albumArt)).BeginInit();
             this.SuspendLayout();
             // 
@@ -106,7 +110,7 @@
             // 
             // buttonCorrectSpelling
             // 
-            this.buttonCorrectSpelling.Location = new System.Drawing.Point(12, 110);
+            this.buttonCorrectSpelling.Location = new System.Drawing.Point(13, 139);
             this.buttonCorrectSpelling.Name = "buttonCorrectSpelling";
             this.buttonCorrectSpelling.Size = new System.Drawing.Size(100, 23);
             this.buttonCorrectSpelling.TabIndex = 10;
@@ -117,7 +121,7 @@
             // buttonScrobble
             // 
             this.buttonScrobble.Enabled = false;
-            this.buttonScrobble.Location = new System.Drawing.Point(12, 139);
+            this.buttonScrobble.Location = new System.Drawing.Point(13, 168);
             this.buttonScrobble.Name = "buttonScrobble";
             this.buttonScrobble.Size = new System.Drawing.Size(100, 23);
             this.buttonScrobble.TabIndex = 13;
@@ -129,7 +133,7 @@
             // checkBoxAutoScrobble
             // 
             this.checkBoxAutoScrobble.AutoSize = true;
-            this.checkBoxAutoScrobble.Location = new System.Drawing.Point(224, 143);
+            this.checkBoxAutoScrobble.Location = new System.Drawing.Point(225, 172);
             this.checkBoxAutoScrobble.Name = "checkBoxAutoScrobble";
             this.checkBoxAutoScrobble.Size = new System.Drawing.Size(88, 17);
             this.checkBoxAutoScrobble.TabIndex = 15;
@@ -140,7 +144,7 @@
             // checkBoxAutoCorrect
             // 
             this.checkBoxAutoCorrect.AutoSize = true;
-            this.checkBoxAutoCorrect.Location = new System.Drawing.Point(224, 114);
+            this.checkBoxAutoCorrect.Location = new System.Drawing.Point(225, 143);
             this.checkBoxAutoCorrect.Name = "checkBoxAutoCorrect";
             this.checkBoxAutoCorrect.Size = new System.Drawing.Size(81, 17);
             this.checkBoxAutoCorrect.TabIndex = 12;
@@ -153,7 +157,7 @@
             // 
             // buttonOriginalSpelling
             // 
-            this.buttonOriginalSpelling.Location = new System.Drawing.Point(118, 110);
+            this.buttonOriginalSpelling.Location = new System.Drawing.Point(119, 139);
             this.buttonOriginalSpelling.Name = "buttonOriginalSpelling";
             this.buttonOriginalSpelling.Size = new System.Drawing.Size(100, 23);
             this.buttonOriginalSpelling.TabIndex = 11;
@@ -165,7 +169,7 @@
             // 
             this.buttonPause.Enabled = false;
             this.buttonPause.Image = global::Skcrwblr.Properties.Resources.Pause;
-            this.buttonPause.Location = new System.Drawing.Point(166, 224);
+            this.buttonPause.Location = new System.Drawing.Point(167, 253);
             this.buttonPause.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.buttonPause.Name = "buttonPause";
             this.buttonPause.Size = new System.Drawing.Size(24, 24);
@@ -178,7 +182,7 @@
             // 
             this.buttonStop.Enabled = false;
             this.buttonStop.Image = global::Skcrwblr.Properties.Resources.Stop;
-            this.buttonStop.Location = new System.Drawing.Point(193, 224);
+            this.buttonStop.Location = new System.Drawing.Point(194, 253);
             this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.buttonStop.Name = "buttonStop";
             this.buttonStop.Size = new System.Drawing.Size(24, 24);
@@ -190,7 +194,7 @@
             // buttonPlay
             // 
             this.buttonPlay.Image = global::Skcrwblr.Properties.Resources.Play;
-            this.buttonPlay.Location = new System.Drawing.Point(139, 224);
+            this.buttonPlay.Location = new System.Drawing.Point(140, 253);
             this.buttonPlay.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.buttonPlay.Name = "buttonPlay";
             this.buttonPlay.Size = new System.Drawing.Size(24, 24);
@@ -202,7 +206,7 @@
             // textBoxLog
             // 
             this.textBoxLog.ContextMenu = this.contextMenuLog;
-            this.textBoxLog.Location = new System.Drawing.Point(12, 168);
+            this.textBoxLog.Location = new System.Drawing.Point(13, 197);
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
             this.textBoxLog.ReadOnly = true;
@@ -287,7 +291,7 @@
             // 
             // buttonLove
             // 
-            this.buttonLove.Location = new System.Drawing.Point(118, 139);
+            this.buttonLove.Location = new System.Drawing.Point(119, 168);
             this.buttonLove.Name = "buttonLove";
             this.buttonLove.Size = new System.Drawing.Size(100, 23);
             this.buttonLove.TabIndex = 14;
@@ -359,7 +363,7 @@
             // 
             this.comboBoxStream.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxStream.FormattingEnabled = true;
-            this.comboBoxStream.Location = new System.Drawing.Point(12, 225);
+            this.comboBoxStream.Location = new System.Drawing.Point(13, 254);
             this.comboBoxStream.Name = "comboBoxStream";
             this.comboBoxStream.Size = new System.Drawing.Size(121, 21);
             this.comboBoxStream.TabIndex = 17;
@@ -374,21 +378,63 @@
             this.labelAlbumArt.TabIndex = 9;
             this.labelAlbumArt.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // labelTime
+            // 
+            this.labelTime.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.labelTime.Location = new System.Drawing.Point(42, 111);
+            this.labelTime.Name = "labelTime";
+            this.labelTime.Size = new System.Drawing.Size(244, 22);
+            this.labelTime.TabIndex = 22;
+            this.labelTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // buttonPrevious
+            // 
+            this.buttonPrevious.Font = new System.Drawing.Font("Marlett", 11F);
+            this.buttonPrevious.Location = new System.Drawing.Point(13, 110);
+            this.buttonPrevious.Name = "buttonPrevious";
+            this.buttonPrevious.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
+            this.buttonPrevious.Size = new System.Drawing.Size(23, 23);
+            this.buttonPrevious.TabIndex = 0;
+            this.buttonPrevious.Text = "3";
+            this.buttonPrevious.UseVisualStyleBackColor = true;
+            this.buttonPrevious.Click += new System.EventHandler(this.buttonPrevious_Click);
+            // 
+            // buttonNext
+            // 
+            this.buttonNext.Font = new System.Drawing.Font("Marlett", 11F);
+            this.buttonNext.Location = new System.Drawing.Point(292, 110);
+            this.buttonNext.Name = "buttonNext";
+            this.buttonNext.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
+            this.buttonNext.Size = new System.Drawing.Size(23, 23);
+            this.buttonNext.TabIndex = 0;
+            this.buttonNext.Text = "4";
+            this.buttonNext.UseVisualStyleBackColor = true;
+            this.buttonNext.Click += new System.EventHandler(this.buttonNext_Click);
+            // 
             // volumeControl
             // 
-            this.volumeControl.Location = new System.Drawing.Point(220, 225);
+            this.volumeControl.Location = new System.Drawing.Point(221, 254);
             this.volumeControl.Name = "volumeControl";
             this.volumeControl.Size = new System.Drawing.Size(95, 22);
             this.volumeControl.TabIndex = 21;
             this.volumeControl.VolumeAsPercent = 100;
             this.volumeControl.VolumeChanged += new System.EventHandler(this.volumeControl_VolumeChanged);
             // 
+            // timerUpdateTime
+            // 
+            this.timerUpdateTime.Enabled = true;
+            this.timerUpdateTime.Interval = 1000;
+            this.timerUpdateTime.Tick += new System.EventHandler(this.timerUpdateTime_Tick);
+            // 
             // SkcrwblrForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(327, 260);
+            this.ClientSize = new System.Drawing.Size(327, 289);
             this.ContextMenu = this.contextMenuAbout;
+            this.Controls.Add(this.buttonNext);
+            this.Controls.Add(this.buttonPrevious);
+            this.Controls.Add(this.labelTime);
             this.Controls.Add(this.labelProgram);
             this.Controls.Add(this.linkLabelLogin);
             this.Controls.Add(this.linkLabelArtist);
@@ -461,6 +507,10 @@
         private System.Windows.Forms.MenuItem menuItem4;
         private System.Windows.Forms.MenuItem menuItemCopy;
         private System.Windows.Forms.MenuItem menuItemSelectAll;
+        private System.Windows.Forms.Label labelTime;
+        private System.Windows.Forms.Button buttonPrevious;
+        private System.Windows.Forms.Button buttonNext;
+        private System.Windows.Forms.Timer timerUpdateTime;
     }
 }
 

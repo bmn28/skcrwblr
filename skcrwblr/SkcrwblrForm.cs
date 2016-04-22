@@ -197,8 +197,41 @@ namespace Skcrwblr
             textBoxAlbum.Text = response.Album;
             textBoxTitle.Text = response.Title;
             textBoxArtist.Text = response.Artist;
+            updateTime(DateTime.Parse(response.Datetime));
 
             await findCorrection(response, true);
+        }
+
+        private void updateTime(DateTime dateTime)
+        {
+            TimeSpan timeSpan = DateTime.Now - dateTime;
+            string timeCode;
+            string timeDescription;
+            int minutesAgo = (int)(DateTime.Now - dateTime).TotalMinutes;
+            int hoursAgo = minutesAgo / 60;
+            minutesAgo = minutesAgo % 60;
+
+            if (timeSpan.TotalHours >= 1F)
+            {
+                timeCode = timeSpan.ToString(@"h\:mm\:ss");
+            }
+            else
+            {
+                timeCode = timeSpan.ToString(@"m\:ss");
+            }
+            if (hoursAgo == 0 && minutesAgo == 0)
+            {
+                timeDescription = "just now";
+            }
+            else if (hoursAgo == 0)
+            {
+                timeDescription = (minutesAgo == 1) ? minutesAgo + " minute ago" : minutesAgo + " minutes ago";
+            }
+            else
+            {
+                timeDescription = hoursAgo + " hours " + minutesAgo + " minutes ago";
+            }
+            labelTime.Text = dateTime.ToShortTimeString() + " (" + timeDescription + ") - " + timeCode;
         }
 
         /// <summary>
@@ -587,6 +620,11 @@ namespace Skcrwblr
             updateTracklist();
         }
 
+        private void timerUpdateTime_Tick(object sender, EventArgs e)
+        {
+            updateTime(DateTime.Parse(CurrentTrack.Datetime));
+        }
+
         private async void linkLabelLogin_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (loggedIn)
@@ -695,6 +733,16 @@ namespace Skcrwblr
         private void textBoxAlbum_TextChanged(object sender, EventArgs e)
         {
             CurrentTrack.UserAlbum = textBoxAlbum.Text;
+        }
+
+        private void buttonPrevious_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonNext_Click(object sender, EventArgs e)
+        {
+
         }
 
         private async void buttonCorrectSpelling_Click(object sender, EventArgs e)
