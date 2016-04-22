@@ -872,6 +872,11 @@ namespace Skcrwblr
             about.ShowDialog();
         }
 
+        private void menuItemKcrw_Click(object sender, EventArgs e)
+        {
+            Process.Start("http://kcrw.com");
+        }
+
         private async void menuItemLogin_Click(object sender, EventArgs e)
         {
             await attemptLogin();

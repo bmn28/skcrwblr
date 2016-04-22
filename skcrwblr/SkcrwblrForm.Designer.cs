@@ -40,6 +40,9 @@
             this.checkBoxAutoCorrect = new System.Windows.Forms.CheckBox();
             this.buttonOriginalSpelling = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.buttonPlay = new System.Windows.Forms.Button();
+            this.buttonPause = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.contextMenuLog = new System.Windows.Forms.ContextMenu();
             this.menuItemClear = new System.Windows.Forms.MenuItem();
@@ -66,10 +69,8 @@
             this.timerUpdateTime = new System.Windows.Forms.Timer(this.components);
             this.buttonLast = new System.Windows.Forms.Button();
             this.albumArt = new System.Windows.Forms.PictureBox();
-            this.buttonPlay = new System.Windows.Forms.Button();
-            this.buttonPause = new System.Windows.Forms.Button();
-            this.buttonStop = new System.Windows.Forms.Button();
             this.volumeControl = new Skcrwblr.VolumeControl();
+            this.menuItemKcrw = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.albumArt)).BeginInit();
             this.SuspendLayout();
             // 
@@ -166,6 +167,44 @@
             this.buttonOriginalSpelling.UseVisualStyleBackColor = true;
             this.buttonOriginalSpelling.Click += new System.EventHandler(this.buttonOriginalSpelling_Click);
             // 
+            // buttonPlay
+            // 
+            this.buttonPlay.Image = global::Skcrwblr.Properties.Resources.Play;
+            this.buttonPlay.Location = new System.Drawing.Point(140, 253);
+            this.buttonPlay.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.buttonPlay.Name = "buttonPlay";
+            this.buttonPlay.Size = new System.Drawing.Size(24, 24);
+            this.buttonPlay.TabIndex = 22;
+            this.toolTip.SetToolTip(this.buttonPlay, "Play");
+            this.buttonPlay.UseVisualStyleBackColor = true;
+            this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
+            // 
+            // buttonPause
+            // 
+            this.buttonPause.Enabled = false;
+            this.buttonPause.Image = global::Skcrwblr.Properties.Resources.Pause;
+            this.buttonPause.Location = new System.Drawing.Point(167, 253);
+            this.buttonPause.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.buttonPause.Name = "buttonPause";
+            this.buttonPause.Size = new System.Drawing.Size(24, 24);
+            this.buttonPause.TabIndex = 23;
+            this.toolTip.SetToolTip(this.buttonPause, "Pause");
+            this.buttonPause.UseVisualStyleBackColor = true;
+            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.Enabled = false;
+            this.buttonStop.Image = global::Skcrwblr.Properties.Resources.Stop;
+            this.buttonStop.Location = new System.Drawing.Point(194, 253);
+            this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(24, 24);
+            this.buttonStop.TabIndex = 24;
+            this.toolTip.SetToolTip(this.buttonStop, "Stop");
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
+            // 
             // textBoxLog
             // 
             this.textBoxLog.ContextMenu = this.contextMenuLog;
@@ -255,11 +294,12 @@
             // contextMenuAbout
             // 
             this.contextMenuAbout.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemKcrw,
             this.menuItemAbout});
             // 
             // menuItemAbout
             // 
-            this.menuItemAbout.Index = 0;
+            this.menuItemAbout.Index = 1;
             this.menuItemAbout.Text = "About";
             this.menuItemAbout.Click += new System.EventHandler(this.menuItemAbout_Click);
             // 
@@ -391,44 +431,6 @@
             this.albumArt.TabIndex = 18;
             this.albumArt.TabStop = false;
             // 
-            // buttonPlay
-            // 
-            this.buttonPlay.Image = global::Skcrwblr.Properties.Resources.Play;
-            this.buttonPlay.Location = new System.Drawing.Point(140, 253);
-            this.buttonPlay.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.buttonPlay.Name = "buttonPlay";
-            this.buttonPlay.Size = new System.Drawing.Size(24, 24);
-            this.buttonPlay.TabIndex = 22;
-            this.toolTip.SetToolTip(this.buttonPlay, "Play");
-            this.buttonPlay.UseVisualStyleBackColor = true;
-            this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
-            // 
-            // buttonPause
-            // 
-            this.buttonPause.Enabled = false;
-            this.buttonPause.Image = global::Skcrwblr.Properties.Resources.Pause;
-            this.buttonPause.Location = new System.Drawing.Point(167, 253);
-            this.buttonPause.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.buttonPause.Name = "buttonPause";
-            this.buttonPause.Size = new System.Drawing.Size(24, 24);
-            this.buttonPause.TabIndex = 23;
-            this.toolTip.SetToolTip(this.buttonPause, "Pause");
-            this.buttonPause.UseVisualStyleBackColor = true;
-            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
-            // 
-            // buttonStop
-            // 
-            this.buttonStop.Enabled = false;
-            this.buttonStop.Image = global::Skcrwblr.Properties.Resources.Stop;
-            this.buttonStop.Location = new System.Drawing.Point(194, 253);
-            this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.buttonStop.Name = "buttonStop";
-            this.buttonStop.Size = new System.Drawing.Size(24, 24);
-            this.buttonStop.TabIndex = 24;
-            this.toolTip.SetToolTip(this.buttonStop, "Stop");
-            this.buttonStop.UseVisualStyleBackColor = true;
-            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
-            // 
             // volumeControl
             // 
             this.volumeControl.Location = new System.Drawing.Point(221, 254);
@@ -437,6 +439,12 @@
             this.volumeControl.TabIndex = 25;
             this.volumeControl.VolumeAsPercent = 100;
             this.volumeControl.VolumeChanged += new System.EventHandler(this.volumeControl_VolumeChanged);
+            // 
+            // menuItemKcrw
+            // 
+            this.menuItemKcrw.Index = 0;
+            this.menuItemKcrw.Text = "Visit KCRW";
+            this.menuItemKcrw.Click += new System.EventHandler(this.menuItemKcrw_Click);
             // 
             // SkcrwblrForm
             // 
@@ -525,6 +533,7 @@
         private System.Windows.Forms.Button buttonNext;
         private System.Windows.Forms.Timer timerUpdateTime;
         private System.Windows.Forms.Button buttonLast;
+        private System.Windows.Forms.MenuItem menuItemKcrw;
     }
 }
 
