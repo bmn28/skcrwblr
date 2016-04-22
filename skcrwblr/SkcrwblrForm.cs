@@ -14,29 +14,39 @@ namespace Skcrwblr
     /// </summary>
     public partial class SkcrwblrForm : Form
     {
-        private static List<Stream> channels = new List<Stream>
+        private static List<Tracklist> tracklists = new List<Tracklist>
         {
-            new Stream("KCRW Radio 89.9", "http://kcrw.ic.llnwd.net/stream/kcrw_live", "http://tracklist-api.kcrw.com/Simulcast/all"),
-            new Stream("Eclectic 24", "http://kcrw.ic.llnwd.net/stream/kcrw_music", "http://tracklist-api.kcrw.com/Music/all"),
-            new Stream("KCRW Radio 89.9 (alternate)", "http://sc11.sjc.llnw.net/stream/kcrw_live", "http://tracklist-api.kcrw.com/Simulcast/all"),
+            new Tracklist("http://tracklist-api.kcrw.com/Simulcast/all"),
+            new Tracklist("http://tracklist-api.kcrw.com/Music/all"),
+        };
+
+        private static List<Stream> streams = new List<Stream>
+        {
+            new Stream("KCRW Radio 89.9", "http://kcrw.ic.llnwd.net/stream/kcrw_live", tracklists[0]),
+            new Stream("Eclectic 24", "http://kcrw.ic.llnwd.net/stream/kcrw_music", tracklists[1]),
+            new Stream("KCRW Radio 89.9 (alternate)", "http://sc11.sjc.llnw.net/stream/kcrw_live", tracklists[0]),
         };
 
         private LastFmScrobbler scrobbler;
         private Mp3Streamer streamer;
-        private KcrwTrack currentTrack;
-        private KcrwTrack lastTrack;
-        private LastFmTrack lfmTrack;
         private bool loggedIn;
-        private bool connectedToKcrw;
         private bool lovedCurrent;
         private bool textChanged;
         private bool exiting;
+
+        public KcrwResponse CurrentTrack
+        {
+            get
+            {
+                return ((Stream)comboBoxStream.SelectedItem).Tracklist.Last.Value;
+            }
+        }
 
         public SkcrwblrForm()
         {
             InitializeComponent();
             scrobbler = new LastFmScrobbler();
-            streamer = new Mp3Streamer(channels[0].StreamUrl);
+            streamer = new Mp3Streamer(streams[0].StreamUrl);
             streamer.getVolume = () => volumeControl.Volume;
             streamer.Error += (message => { log("Playback error: " + message); });
             streamer.Playing += (() => { setButtonStates(false, true, true); });
@@ -45,14 +55,13 @@ namespace Skcrwblr
             streamer.Buffering += (() => { setButtonStates(true, true, true); });
 
             loggedIn = false;
-            connectedToKcrw = false;
             LovedCurrent = false;
             textChanged = false;
             exiting = false;
 
             if (scrobbler.ReadSession()) completeLogin();
 
-            comboBoxStream.DataSource = channels;
+            comboBoxStream.DataSource = streams;
             comboBoxStream.DisplayMember = "Title";
 
             readRegistry();
@@ -125,48 +134,57 @@ namespace Skcrwblr
             rk.SetValue("Volume", volumeControl.VolumeAsPercent);
         }
 
-        /// <summary>
-        /// Attempts to retrieve the currently playing track from KCRW. 
-        /// </summary>
-        private async void requestTrack()
+        private async void updateTracklist(bool enableScrobbling = true)
         {
             try
             {
-                var newTrack = new KcrwTrack(((Stream)comboBoxStream.SelectedItem).TracklistUrl);
-
-                if (!newTrack.IsEmpty())
+                Tracklist tracklist = ((Stream)comboBoxStream.SelectedItem).Tracklist;
+                LinkedListNode<KcrwResponse> lastNode = tracklist.Last;
+                int numAdded = tracklist.Update();
+                if (numAdded > 0)
                 {
-                    if (!connectedToKcrw)
+                    if (lastNode != null)
                     {
-                        Debug.WriteLine("Connected to KCRW.");
-                        connectedToKcrw = true;
-                    }
-
-                    if (!newTrack.Equals(currentTrack))
-                    {
-                        if (loggedIn && checkBoxAutoScrobble.Checked)
+                        bool autoscrobbling = loggedIn && checkBoxAutoScrobble.Checked && enableScrobbling;
+                        while (lastNode != tracklist.Last)
                         {
-                            await scrobbleTrack();
+                            if (autoscrobbling)
+                            {
+                                if (checkBoxAutoCorrect.Checked)
+                                {
+                                    try
+                                    {
+                                        await scrobbler.Search(lastNode.Value, false);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // ok
+                                    }
+                                }
+                                try
+                                {
+                                    await scrobbler.Scrobble(lastNode.Value, checkBoxAutoCorrect.Checked);
+                                }
+                                catch (Exception ex) when (ex is WebException || ex is System.Runtime.Remoting.ServerException)
+                                {
+                                    log("Error scrobbling: " + ex.Message);
+                                }
+                            }
+                            lastNode = lastNode.Next;
                         }
-
-                        lastTrack = currentTrack;
-                        currentTrack = newTrack;
-
-                        buttonScrobble.Text = "Scrobble now";
-                        buttonScrobble.Enabled = true;
-                        LovedCurrent = false;
-
-                        await populateFields();
                     }
-
+                    buttonScrobble.Text = "Scrobble now";
+                    buttonScrobble.Enabled = true;
+                    LovedCurrent = false;
+                    await populateFields(tracklist.Last.Value);
                     updateNowPlaying();
-                    labelProgram.Text = "Program: " + currentTrack.Response.ProgramTitle;
+                    labelProgram.Text = "Program: " + tracklist.Last.Value.ProgramTitle;
                 }
             }
             catch (Exception ex)
             {
                 log("Error getting tracklist: " + ex.Message);
-                connectedToKcrw = false;
+                //connectedToKcrw = false;
                 labelProgram.Text = "Program: ";
             }
         }
@@ -174,13 +192,13 @@ namespace Skcrwblr
         /// <summary>
         /// Populates the metadata fields with the current track, then searches Last.fm for corrections.
         /// </summary>
-        private async Task populateFields()
+        private async Task populateFields(KcrwResponse response)
         {
-            textBoxAlbum.Text = currentTrack.Album;
-            textBoxTitle.Text = currentTrack.Track;
-            textBoxArtist.Text = currentTrack.Artist;
+            textBoxAlbum.Text = response.Album;
+            textBoxTitle.Text = response.Title;
+            textBoxArtist.Text = response.Artist;
 
-            await findCorrection(true);
+            await findCorrection(response, true);
         }
 
         /// <summary>
@@ -189,26 +207,29 @@ namespace Skcrwblr
         /// to findCorrection.
         /// </summary>
         /// <param name="force">true to force searching Last.fm; otherwise, false.</param>
-        private async Task findCorrection(bool force = false)
+        private async Task findCorrection(KcrwResponse response, bool force = false)
         {
             if (force || textChanged)
             {
-                if (!String.IsNullOrWhiteSpace(textBoxArtist.Text) && !String.IsNullOrWhiteSpace(textBoxTitle.Text))
+                if (!string.IsNullOrWhiteSpace(textBoxArtist.Text) && !string.IsNullOrWhiteSpace(textBoxTitle.Text))
                 {
                     try
                     {
                         buttonCorrectSpelling.Text = "Searching...";
                         buttonCorrectSpelling.Enabled = false;
 
-                        lfmTrack = await scrobbler.GetInfo(textBoxArtist.Text, textBoxTitle.Text);
+                        response.UserArtist = textBoxArtist.Text;
+                        response.UserTitle = textBoxTitle.Text;
+                        response.UserAlbum = textBoxAlbum.Text;
+                        await scrobbler.Search(response, true);
 
                         buttonCorrectSpelling.Text = "Correct spelling";
                         buttonCorrectSpelling.Enabled = true;
-                        if (!String.IsNullOrEmpty(lfmTrack.imageUrl))
+                        if (!string.IsNullOrEmpty(response.LastFmImageUrl))
                         {
                             try
                             {
-                                albumArt.Load(lfmTrack.imageUrl);
+                                albumArt.Load(response.LastFmImageUrl);
                                 labelAlbumArt.Text = "";
                             }
                             catch (Exception ex) when (ex is ArgumentException || ex is WebException)
@@ -222,14 +243,14 @@ namespace Skcrwblr
                             albumArt.Image = null;
                             labelAlbumArt.Text = "No album art";
                         }
-                        LovedCurrent = lfmTrack.userLoved;
+                        LovedCurrent = response.UserLoved;
                         if (checkBoxAutoCorrect.Checked)
                         {
-                            useCorrectSpelling();
+                            useCorrectSpelling(CurrentTrack);
                         }
                         else
                         {
-                            colorize();
+                            colorize(CurrentTrack);
                         }
                     }
                     catch (Exception ex)
@@ -262,7 +283,7 @@ namespace Skcrwblr
             textBoxTitle.BackColor = SystemColors.Window;
             textBoxAlbum.BackColor = SystemColors.Window;
 
-            lfmTrack = null;
+            //lfmTrack = null;
             buttonCorrectSpelling.Text = "Search";
             buttonCorrectSpelling.Enabled = true;
         }
@@ -271,18 +292,18 @@ namespace Skcrwblr
         /// Populates the metadata fields with the data from Last.fm, colorizing to indicate
         /// consistency with the data from KCRW.
         /// </summary>
-        private void useCorrectSpelling()
+        private void useCorrectSpelling(KcrwResponse response)
         {
-            if (lfmTrack != null)
+            if (response.LastFmFound)
             {
-                textBoxArtist.Text = lfmTrack.artist;
-                textBoxTitle.Text = lfmTrack.title;
-                textBoxAlbum.Text = lfmTrack.album;
-                textBoxArtist.BackColor = textBoxArtist.Text.Trim().ToLower().Equals(currentTrack.Artist.Trim().ToLower()) ?
+                textBoxArtist.Text = response.LastFmArtist;
+                textBoxTitle.Text = response.LastFmTitle;
+                textBoxAlbum.Text = response.LastFmAlbum;
+                textBoxArtist.BackColor = textBoxArtist.Text.Trim().ToLower().Equals(response.UserArtist.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxTitle.BackColor = textBoxTitle.Text.Trim().ToLower().Equals(currentTrack.Track.Trim().ToLower()) ?
+                textBoxTitle.BackColor = textBoxTitle.Text.Trim().ToLower().Equals(response.UserTitle.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxAlbum.BackColor = textBoxAlbum.Text.Trim().ToLower().Equals(currentTrack.Album.Trim().ToLower()) ?
+                textBoxAlbum.BackColor = textBoxAlbum.Text.Trim().ToLower().Equals(response.UserAlbum.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
             }
             else
@@ -297,15 +318,15 @@ namespace Skcrwblr
         /// <summary>
         /// Colorizes the metadata fields to indicate if they conform to the data from Last.fm.
         /// </summary>
-        private void colorize()
+        private void colorize(KcrwResponse response)
         {
-            if (lfmTrack != null)
+            if (response.LastFmFound)
             {
-                textBoxArtist.BackColor = textBoxArtist.Text.Trim().ToLower().Equals(lfmTrack.artist.Trim().ToLower()) ?
+                textBoxArtist.BackColor = textBoxArtist.Text.Trim().ToLower().Equals(response.LastFmArtist.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxTitle.BackColor = textBoxTitle.Text.Trim().ToLower().Equals(lfmTrack.title.Trim().ToLower()) ?
+                textBoxTitle.BackColor = textBoxTitle.Text.Trim().ToLower().Equals(response.LastFmTitle.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
-                textBoxAlbum.BackColor = string.IsNullOrWhiteSpace(lfmTrack.album) || textBoxAlbum.Text.Trim().ToLower().Equals(lfmTrack.album.Trim().ToLower()) ?
+                textBoxAlbum.BackColor = string.IsNullOrWhiteSpace(response.LastFmAlbum) || textBoxAlbum.Text.Trim().ToLower().Equals(response.LastFmAlbum.Trim().ToLower()) ?
                     Color.Honeydew : Color.LavenderBlush;
             }
             else
@@ -337,7 +358,7 @@ namespace Skcrwblr
         /// <summary>
         /// Attempts to scrobble the current track. Assumes the user is logged in.
         /// </summary>
-        private async Task scrobbleTrack()
+        private async Task scrobbleTrack(KcrwResponse response)
         {
             if (String.IsNullOrEmpty(textBoxArtist.Text) || String.IsNullOrEmpty(textBoxTitle.Text))
             {
@@ -350,7 +371,8 @@ namespace Skcrwblr
             {
                 try
                 {
-                    await scrobbler.Scrobble(textBoxArtist.Text, textBoxTitle.Text, textBoxAlbum.Text, currentTrack.Timestamp);
+                    await scrobbler.Scrobble(textBoxArtist.Text, textBoxTitle.Text, textBoxAlbum.Text, 
+                        DateTime.Parse(response.Datetime));
                     log("Scrobbled " + textBoxArtist.Text + " - " + textBoxTitle.Text + ".");
                     buttonScrobble.Text = "Scrobbled";
                     buttonScrobble.Enabled = false;
@@ -563,7 +585,7 @@ namespace Skcrwblr
 
         private void timerGetTrack_Tick(object sender, EventArgs e)
         {
-            requestTrack();
+            updateTracklist();
         }
 
         private async void linkLabelLogin_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -636,7 +658,7 @@ namespace Skcrwblr
 
         private async void textBoxArtist_Leave(object sender, EventArgs e)
         {
-            await findCorrection();
+            await findCorrection(CurrentTrack);
         }
 
         private void textBoxArtist_TextChanged(object sender, EventArgs e)
@@ -651,7 +673,7 @@ namespace Skcrwblr
 
         private async void textBoxTitle_Leave(object sender, EventArgs e)
         {
-            await findCorrection();
+            await findCorrection(CurrentTrack);
         }
 
         private void textBoxTitle_TextChanged(object sender, EventArgs e)
@@ -671,29 +693,29 @@ namespace Skcrwblr
 
         private async void buttonCorrectSpelling_Click(object sender, EventArgs e)
         {
-            if (lfmTrack == null)
+            if (!CurrentTrack.LastFmFound)
             {
-                await findCorrection(true);
+                await findCorrection(CurrentTrack, true);
             }
             else
             {
-                useCorrectSpelling();
+                useCorrectSpelling(CurrentTrack);
             }
         }
 
         private void buttonOriginalSpelling_Click(object sender, EventArgs e)
         {
-            textBoxAlbum.Text = currentTrack.Album;
-            textBoxTitle.Text = currentTrack.Track;
-            textBoxArtist.Text = currentTrack.Artist;
-            colorize();
+            textBoxAlbum.Text = CurrentTrack.Album;
+            textBoxTitle.Text = CurrentTrack.Title;
+            textBoxArtist.Text = CurrentTrack.Artist;
+            colorize(CurrentTrack);
         }
 
         private void checkBoxAutoCorrect_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBoxAutoCorrect.Checked)
             {
-                useCorrectSpelling();
+                useCorrectSpelling(CurrentTrack);
             }
         }
 
@@ -701,7 +723,7 @@ namespace Skcrwblr
         {
             if (loggedIn)
             {
-                await scrobbleTrack();
+                await scrobbleTrack(CurrentTrack);
             }
         }
 
@@ -787,7 +809,7 @@ namespace Skcrwblr
         {
             streamer.Stop();
             streamer.StreamUrl = ((Stream)comboBoxStream.SelectedItem).StreamUrl;
-            requestTrack();
+            updateTracklist(false);
         }
 
         private void Skcrwblr_FormClosing(object sender, FormClosingEventArgs e)
@@ -806,13 +828,13 @@ namespace Skcrwblr
         {
             public string Title { get; set; }
             public string StreamUrl { get; set; }
-            public string TracklistUrl { get; set; }
+            public Tracklist Tracklist { get; set; }
 
-            public Stream(string title, string streamUrl, string tracklistUrl)
+            public Stream(string title, string streamUrl, Tracklist tracklist)
             {
                 Title = title;
                 StreamUrl = streamUrl;
-                TracklistUrl = tracklistUrl;
+                Tracklist = tracklist;
             }
         }
     }

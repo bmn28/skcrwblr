@@ -356,6 +356,55 @@ namespace Skcrwblr
             }
         }
 
+        public async Task Scrobble(KcrwResponse value, bool preferLastFm = false)
+        {
+            string artist;
+            string title;
+            string album;
+            DateTime timestamp = DateTime.Parse(value.Datetime);
+
+            if (preferLastFm)
+            {
+                artist = value.LastFmArtist != null ? value.LastFmArtist : value.Artist;
+                title = value.LastFmTitle != null ? value.LastFmTitle : value.Title;
+                album = value.LastFmAlbum != null ? value.LastFmAlbum : value.Album;
+            }
+            else
+            {
+                artist = value.UserArtist != null ? value.UserArtist : value.Artist;
+                title = value.UserTitle != null ? value.UserTitle : value.Title;
+                album = value.UserAlbum != null ? value.UserAlbum : value.Album;
+            }
+            await Scrobble(artist, title, album, timestamp);
+        }
+
+        public async Task Search(KcrwResponse value, bool useUserData)
+        {
+            try
+            {
+                string artist = (useUserData && value.UserArtist != null) ? value.UserArtist : value.Artist;
+                string title = (useUserData && value.UserTitle != null) ? value.UserTitle : value.Title;
+                LastFmTrack track = await GetInfo(artist, title);
+                value.LastFmArtist = track.artist;
+                value.LastFmTitle = track.title;
+                value.LastFmAlbum = track.album;
+                value.LastFmImageUrl = track.imageUrl;
+                value.UserLoved = track.userLoved;
+                value.LastFmFound = true;
+            }
+            catch (ServerException ex)
+            {
+                if (ex.Message.Equals("Track not found"))
+                {
+                    value.LastFmFound = false;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         /// <summary>
         /// Loves a track on Last.fm.
         /// </summary>
