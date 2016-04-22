@@ -97,7 +97,6 @@
     <Compile Include="KcrwResponse.cs" />
     <Compile Include="LastFmScrobbler.cs" />
     <Compile Include="LastFmTrack.cs" />
-    <Compile Include="KcrwTrack.cs" />
     <Compile Include="KcrwApi.cs" />
     <Compile Include="ReadFullyStream.cs" />
     <Compile Include="Tracklist.cs" />
