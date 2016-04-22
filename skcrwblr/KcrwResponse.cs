@@ -80,9 +80,45 @@ namespace Skcrwblr
         [DataMember(Name = "location")]
         public string Location { get; set; }
 
-        public string UserArtist { get; set; }
-        public string UserTitle { get; set; }
-        public string UserAlbum { get; set; }
+        private string userArtist = null;
+        public string UserArtist
+        {
+            get
+            {
+                return userArtist == null ? Artist : userArtist;
+            }
+            set
+            {
+                userArtist = value;
+            }
+        }
+
+        private string userTitle = null;
+        public string UserTitle
+        {
+            get
+            {
+                return userTitle == null ? Title : userTitle;
+            }
+            set
+            {
+                userTitle = value;
+            }
+        }
+
+        private string userAlbum = null;
+        public string UserAlbum
+        {
+            get
+            {
+                return userAlbum == null ? Album : userAlbum;
+            }
+            set
+            {
+                userAlbum = value;
+            }
+        }
+
         public string LastFmArtist { get; set; }
         public string LastFmTitle { get; set; }
         public string LastFmAlbum { get; set; }

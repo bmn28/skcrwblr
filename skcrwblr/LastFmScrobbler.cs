@@ -370,9 +370,9 @@ namespace Skcrwblr
             }
             else
             {
-                artist = value.UserArtist != null ? value.UserArtist : value.Artist;
-                title = value.UserTitle != null ? value.UserTitle : value.Title;
-                album = value.UserAlbum != null ? value.UserAlbum : value.Album;
+                artist = value.UserArtist;
+                title = value.UserTitle;
+                album = value.UserAlbum;
             }
             await Scrobble(artist, title, album, value.ParsedDateTime);
         }
@@ -381,8 +381,8 @@ namespace Skcrwblr
         {
             try
             {
-                string artist = (useUserData && value.UserArtist != null) ? value.UserArtist : value.Artist;
-                string title = (useUserData && value.UserTitle != null) ? value.UserTitle : value.Title;
+                string artist = useUserData ? value.UserArtist : value.Artist;
+                string title = useUserData ? value.UserTitle : value.Title;
                 LastFmTrack track = await GetInfo(artist, title);
                 value.LastFmArtist = track.artist;
                 value.LastFmTitle = track.title;
