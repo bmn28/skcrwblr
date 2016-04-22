@@ -209,30 +209,8 @@ namespace Skcrwblr
         private void updateTime(DateTime dateTime)
         {
             TimeSpan timeSpan = DateTime.Now.ToUniversalTime() - dateTime;
-            string timeCode;
-            string timeDescription;
-
-            if (timeSpan.TotalHours >= 1F)
-            {
-                timeCode = timeSpan.ToString(@"h\:mm\:ss");
-            }
-            else
-            {
-                timeCode = timeSpan.ToString(@"m\:ss");
-            }
-            if (timeSpan.TotalMinutes < 1F)
-            {
-                timeDescription = "just now";
-            }
-            else if (timeSpan.TotalHours < 1F)
-            {
-                timeDescription = (timeSpan.Minutes == 1) ? timeSpan.Minutes + " minute ago" : timeSpan.Minutes + " minutes ago";
-            }
-            else
-            {
-                timeDescription = (int)timeSpan.TotalHours + " hours " + timeSpan.Minutes + " minutes ago";
-            }
-            labelTime.Text = dateTime.ToLocalTime().ToShortTimeString() + " (" + timeDescription + ") - " + timeCode;
+            string timeCode = timeSpan.TotalHours >= 1F ? timeSpan.ToString(@"h\:mm\:ss") : timeSpan.ToString(@"m\:ss");
+            labelTime.Text = dateTime.ToLocalTime().ToShortTimeString() + " - " + timeCode;
         }
 
         /// <summary>
