@@ -191,7 +191,9 @@ namespace Skcrwblr
                     buttonScrobble.Enabled = true;
                     LovedCurrent = false;
                     selectedNode = tracklist.Last;
-                    await populateFields(tracklist.Last.Value);
+                    await findCorrection(LastTrack);
+                    textChanged = false;
+                    populateFields(LastTrack);
                     updateNowPlaying();
                     labelProgram.Text = "Program: " + tracklist.Last.Value.ProgramTitle;
                 }
@@ -205,14 +207,48 @@ namespace Skcrwblr
         }
 
         /// <summary>
-        /// Populates the metadata fields with the current track, then searches Last.fm for corrections.
+        /// Populates the metadata fields with the current track.
         /// </summary>
-        private async Task populateFields(KcrwResponse response)
+        private void populateFields(KcrwResponse response)
         {
-            await findCorrection(response, true);
-            textBoxAlbum.Text = response.Album;
-            textBoxTitle.Text = response.Title;
-            textBoxArtist.Text = response.Artist;
+            if (!response.LastFmFound)
+            {
+                resetTrackDisplay();
+            }
+            else
+            {
+                buttonCorrectSpelling.Text = "Correct spelling";
+            }
+            if (!string.IsNullOrEmpty(response.LastFmImageUrl))
+            {
+                try
+                {
+                    albumArt.Load(response.LastFmImageUrl);
+                    labelAlbumArt.Text = "";
+                }
+                catch (Exception ex) when (ex is ArgumentException || ex is WebException)
+                {
+                    albumArt.Image = null;
+                    labelAlbumArt.Text = "No album art";
+                }
+            }
+            else
+            {
+                albumArt.Image = null;
+                labelAlbumArt.Text = "No album art";
+            }
+            LovedCurrent = response.UserLoved;
+            if (checkBoxAutoCorrect.Checked)
+            {
+                useCorrectSpelling(response);
+            }
+            else
+            {
+                textBoxAlbum.Text = response.UserAlbum;
+                textBoxTitle.Text = response.UserTitle;
+                textBoxArtist.Text = response.UserArtist;
+                colorize(response);
+            }
             updateTime(response.ParsedDateTime, response == LastTrack);
             if (response.UserScrobbled)
             {
@@ -238,18 +274,15 @@ namespace Skcrwblr
         }
 
         /// <summary>
-        /// Searches Last.fm for corrections, storing the retrieved metadata in lfmTrack, if either
-        /// the force parameter is true or if the text fields have been changed since the last call
-        /// to findCorrection.
+        /// Searches Last.fm for corrections, storing the retrieved metadata in lfmTrack.
         /// </summary>
-        /// <param name="force">true to force searching Last.fm; otherwise, false.</param>
-        private async Task findCorrection(KcrwResponse response, bool force = false)
+        private async Task findCorrection(KcrwResponse response)
         {
-            if (force || textChanged)
+            if (!string.IsNullOrWhiteSpace(response.UserArtist) && !string.IsNullOrWhiteSpace(response.UserTitle))
             {
-                if (!string.IsNullOrWhiteSpace(response.UserArtist) && !string.IsNullOrWhiteSpace(response.UserTitle))
+                try
                 {
-                    try
+                    if (textChanged || !response.LastFmFound)
                     {
                         buttonCorrectSpelling.Text = "Searching...";
                         buttonCorrectSpelling.Enabled = false;
@@ -258,50 +291,16 @@ namespace Skcrwblr
 
                         buttonCorrectSpelling.Text = "Correct spelling";
                         buttonCorrectSpelling.Enabled = true;
-                        if (!string.IsNullOrEmpty(response.LastFmImageUrl))
-                        {
-                            try
-                            {
-                                albumArt.Load(response.LastFmImageUrl);
-                                labelAlbumArt.Text = "";
-                            }
-                            catch (Exception ex) when (ex is ArgumentException || ex is WebException)
-                            {
-                                albumArt.Image = null;
-                                labelAlbumArt.Text = "No album art";
-                            }
-                        }
-                        else
-                        {
-                            albumArt.Image = null;
-                            labelAlbumArt.Text = "No album art";
-                        }
-                        LovedCurrent = response.UserLoved;
-                        if (checkBoxAutoCorrect.Checked)
-                        {
-                            useCorrectSpelling(response);
-                        }
-                        else
-                        {
-                            colorize(response);
-                        }
                     }
-                    catch (Exception ex)
-                    {
-                        if (!ex.Message.Equals("Track not found"))
-                        {
-                            log("Error searching for track: " + ex.Message);
-                        }
-                        resetTrackDisplay();
-                    }
-                    updateNowPlaying();
                 }
-                else
+                catch (Exception ex)
                 {
-                    resetTrackDisplay();
+                    if (!ex.Message.Equals("Track not found"))
+                    {
+                        log("Error searching for track: " + ex.Message);
+                    }
                 }
             }
-            textChanged = false; 
         }
 
         /// <summary>
@@ -698,7 +697,16 @@ namespace Skcrwblr
 
         private async void textBoxArtist_Leave(object sender, EventArgs e)
         {
-            await findCorrection(SelectedTrack);
+            if (textChanged)
+            {
+                await findCorrection(SelectedTrack);
+                textChanged = false;
+                populateFields(SelectedTrack);
+            }
+            if (SelectedTrack == LastTrack)
+            {
+                updateNowPlaying();
+            }
         }
 
         private void textBoxArtist_TextChanged(object sender, EventArgs e)
@@ -714,7 +722,16 @@ namespace Skcrwblr
 
         private async void textBoxTitle_Leave(object sender, EventArgs e)
         {
-            await findCorrection(SelectedTrack);
+            if (textChanged)
+            {
+                await findCorrection(SelectedTrack);
+                textChanged = false;
+                populateFields(SelectedTrack);
+            }
+            if (SelectedTrack == LastTrack)
+            {
+                updateNowPlaying();
+            }
         }
 
         private void textBoxTitle_TextChanged(object sender, EventArgs e)
@@ -743,34 +760,41 @@ namespace Skcrwblr
             if (selectedNode.Previous != null)
             {
                 selectedNode = selectedNode.Previous;
-                await populateFields(SelectedTrack);
+                if (!SelectedTrack.LastFmFound)
+                {
+                    await findCorrection(SelectedTrack);
+                }
+                populateFields(SelectedTrack);
             }
         }
 
-        private async void buttonNext_Click(object sender, EventArgs e)
+        private void buttonNext_Click(object sender, EventArgs e)
         {
             if (selectedNode.Next != null)
             {
                 selectedNode = selectedNode.Next;
-                await populateFields(SelectedTrack);
+                populateFields(SelectedTrack);
             }
         }
 
-        private async void buttonLast_Click(object sender, EventArgs e)
+        private void buttonLast_Click(object sender, EventArgs e)
         {
             selectedNode = ((Stream)comboBoxStream.SelectedItem).Tracklist.Last;
-            await populateFields(SelectedTrack);
+            populateFields(SelectedTrack);
         }
 
         private async void buttonCorrectSpelling_Click(object sender, EventArgs e)
         {
             if (!SelectedTrack.LastFmFound)
             {
-                await findCorrection(SelectedTrack, true);
+                await findCorrection(SelectedTrack);
+                textChanged = false;
+                populateFields(SelectedTrack);
             }
-            else
+            useCorrectSpelling(SelectedTrack);
+            if (SelectedTrack == LastTrack)
             {
-                useCorrectSpelling(SelectedTrack);
+                updateNowPlaying();
             }
         }
 
