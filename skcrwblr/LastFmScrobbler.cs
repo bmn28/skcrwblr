@@ -361,7 +361,6 @@ namespace Skcrwblr
             string artist;
             string title;
             string album;
-            DateTime timestamp = DateTime.Parse(value.Datetime);
 
             if (preferLastFm)
             {
@@ -375,7 +374,7 @@ namespace Skcrwblr
                 title = value.UserTitle != null ? value.UserTitle : value.Title;
                 album = value.UserAlbum != null ? value.UserAlbum : value.Album;
             }
-            await Scrobble(artist, title, album, timestamp);
+            await Scrobble(artist, title, album, value.ParsedDateTime);
         }
 
         public async Task Search(KcrwResponse value, bool useUserData)

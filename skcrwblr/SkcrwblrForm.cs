@@ -164,6 +164,7 @@ namespace Skcrwblr
                                 try
                                 {
                                     await scrobbler.Scrobble(lastNode.Value, checkBoxAutoCorrect.Checked);
+                                    log("Scrobbled " + lastNode.Value.UserArtist + " - " + lastNode.Value.UserTitle + ".");
                                 }
                                 catch (Exception ex) when (ex is WebException || ex is System.Runtime.Remoting.ServerException)
                                 {
@@ -197,19 +198,16 @@ namespace Skcrwblr
             textBoxAlbum.Text = response.Album;
             textBoxTitle.Text = response.Title;
             textBoxArtist.Text = response.Artist;
-            updateTime(DateTime.Parse(response.Datetime));
+            updateTime(response.ParsedDateTime);
 
             await findCorrection(response, true);
         }
 
         private void updateTime(DateTime dateTime)
         {
-            TimeSpan timeSpan = DateTime.Now - dateTime;
+            TimeSpan timeSpan = DateTime.Now.ToUniversalTime() - dateTime;
             string timeCode;
             string timeDescription;
-            int minutesAgo = (int)(DateTime.Now - dateTime).TotalMinutes;
-            int hoursAgo = minutesAgo / 60;
-            minutesAgo = minutesAgo % 60;
 
             if (timeSpan.TotalHours >= 1F)
             {
@@ -219,19 +217,19 @@ namespace Skcrwblr
             {
                 timeCode = timeSpan.ToString(@"m\:ss");
             }
-            if (hoursAgo == 0 && minutesAgo == 0)
+            if (timeSpan.TotalMinutes < 1F)
             {
                 timeDescription = "just now";
             }
-            else if (hoursAgo == 0)
+            else if (timeSpan.TotalHours < 1F)
             {
-                timeDescription = (minutesAgo == 1) ? minutesAgo + " minute ago" : minutesAgo + " minutes ago";
+                timeDescription = (timeSpan.Minutes == 1) ? timeSpan.Minutes + " minute ago" : timeSpan.Minutes + " minutes ago";
             }
             else
             {
-                timeDescription = hoursAgo + " hours " + minutesAgo + " minutes ago";
+                timeDescription = (int)timeSpan.TotalHours + " hours " + timeSpan.Minutes + " minutes ago";
             }
-            labelTime.Text = dateTime.ToShortTimeString() + " (" + timeDescription + ") - " + timeCode;
+            labelTime.Text = dateTime.ToLocalTime().ToShortTimeString() + " (" + timeDescription + ") - " + timeCode;
         }
 
         /// <summary>
@@ -404,7 +402,7 @@ namespace Skcrwblr
             {
                 try
                 {
-                    await scrobbler.Scrobble(CurrentTrack, checkBoxAutoCorrect.Checked);
+                    await scrobbler.Scrobble(response, checkBoxAutoCorrect.Checked);
                     log("Scrobbled " + textBoxArtist.Text + " - " + textBoxTitle.Text + ".");
                     buttonScrobble.Text = "Scrobbled";
                     buttonScrobble.Enabled = false;
@@ -622,7 +620,7 @@ namespace Skcrwblr
 
         private void timerUpdateTime_Tick(object sender, EventArgs e)
         {
-            updateTime(DateTime.Parse(CurrentTrack.Datetime));
+            updateTime(CurrentTrack.ParsedDateTime);
         }
 
         private async void linkLabelLogin_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

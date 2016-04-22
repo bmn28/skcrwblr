@@ -98,7 +98,7 @@ namespace Skcrwblr
             {
                 if (parsedDateTime == null)
                 {
-                    parsedDateTime = DateTime.Parse(Datetime);
+                    parsedDateTime = DateTime.Parse(Datetime, null, System.Globalization.DateTimeStyles.AdjustToUniversal);
                 }
                 return (DateTime)parsedDateTime;
             }
