@@ -74,7 +74,6 @@ namespace Skcrwblr
 
             comboBoxStream.DataSource = streams;
             comboBoxStream.DisplayMember = "Title";
-
             readRegistry();
 
             // enable transparency for labelAlbumArt
@@ -110,11 +109,11 @@ namespace Skcrwblr
                 {
                     try
                     {
-                        comboBoxStream.SelectedIndex = Convert.ToInt32(keyValue);
+                        comboBoxStream.SelectedIndex = Math.Max(0, Convert.ToInt32(keyValue));
                     }
                     catch (ArgumentOutOfRangeException)
                     {
-                        // ok
+                        comboBoxStream.SelectedIndex = 0;
                     }
                 }
                 keyValue = rk.GetValue("Volume");
