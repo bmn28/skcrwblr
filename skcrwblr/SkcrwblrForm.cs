@@ -22,9 +22,8 @@ namespace Skcrwblr
 
         private static List<Stream> streams = new List<Stream>
         {
-            new Stream("KCRW Radio 89.9", "http://kcrw.ic.llnwd.net/stream/kcrw_live", tracklists[0]),
-            new Stream("Eclectic 24", "http://kcrw.ic.llnwd.net/stream/kcrw_music", tracklists[1]),
-            new Stream("KCRW Radio 89.9 (alternate)", "http://sc11.sjc.llnw.net/stream/kcrw_live", tracklists[0]),
+            new Stream("KCRW Radio 89.9", "http://kcrw.streamguys1.com/kcrw_192k_mp3_on_air", tracklists[0]),
+            new Stream("Eclectic 24", "http://kcrw.streamguys1.com/kcrw_192k_mp3_e24", tracklists[1]),
         };
 
         private LastFmScrobbler scrobbler;
